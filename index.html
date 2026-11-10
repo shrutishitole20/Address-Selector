@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoSelect Pro | Dynamic Address Selection Engine</title>
+  
+  <!-- Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Floating Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Top Navigation Bar -->
+  <nav class="top-navbar">
+    <div class="nav-container">
+      <div class="brand-group">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">GeoSelect <span class="brand-accent">Pro</span></span>
+          <span class="brand-badge">Enterprise v2.5</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Live Coverage Metric -->
+        <div class="coverage-pill" title="Current Database Coverage">
+          <span class="dot-online"></span>
+          <span id="coverageStats">58 Countries • 1,200+ Locations</span>
+        </div>
+
+        <!-- Theme Mode Toggle -->
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle dark/light theme" title="Toggle Dark/Light Mode">
+          <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="page-container">
+    
+    <!-- Hero Banner -->
+    <header class="app-header">
+      <div class="header-pill">
+        <span class="pill-sparkle">✨</span> Intelligent Cascading Address Architecture
+      </div>
+      <h1 class="header-title">Dynamic Dependent Address Form</h1>
+      <p class="header-subtitle">
+        Zero dependencies. State-driven Country → State → City relationship engine with real-time browser caching, instant validation, and export capabilities.
+      </p>
+    </header>
+
+    <!-- Two-Column Master Grid -->
+    <div class="app-grid">
+      
+      <!-- Left Column: The Address Selection Form -->
+      <section class="card form-card" aria-labelledby="formSectionHeading">
+        <h2 id="formSectionHeading" class="sr-only">Address Selection Form</h2>
+
+        <!-- Interactive Progress Stepper -->
+        <div class="stepper" aria-label="Form completion steps">
+          <div class="step-node active" id="stepCountry">
+            <div class="step-indicator">
+              <span class="step-num">1</span>
+              <svg class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="step-meta">
+              <span class="step-tag">Step 1</span>
+              <span class="step-title">Country</span>
+            </div>
+          </div>
+
+          <div class="step-divider" id="stepLine1"></div>
+
+          <div class="step-node" id="stepState">
+            <div class="step-indicator">
+              <span class="step-num">2</span>
+              <svg class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="step-meta">
+              <span class="step-tag">Step 2</span>
+              <span class="step-title">State / Province</span>
+            </div>
+          </div>
+
+          <div class="step-divider" id="stepLine2"></div>
+
+          <div class="step-node" id="stepCity">
+            <div class="step-indicator">
+              <span class="step-num">3</span>
+              <svg class="step-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="step-meta">
+              <span class="step-tag">Step 3</span>
+              <span class="step-title">City / Location</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- The Selection Form -->
+        <form id="addressForm" class="address-form" novalidate>
+          
+          <!-- 1. Country Selector Field -->
+          <div class="form-group" id="countryGroup">
+            <div class="form-label-row">
+              <label for="countrySelect" class="form-label">
+                <span class="label-icon">🌍</span>
+                <span class="label-name">Country</span>
+                <span class="required-mark" aria-hidden="true">*</span>
+              </label>
+              <div class="search-filter-box">
+                <input type="text" id="countryFilterInput" class="filter-input" placeholder="🔍 Quick filter..." aria-label="Filter countries">
+              </div>
+            </div>
+
+            <div class="select-container">
+              <select id="countrySelect" name="country" class="form-select" aria-describedby="countryError countryInfo">
+                <option value="">-- Choose a Country --</option>
+              </select>
+              <div class="select-chevron" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Dynamic Country Metadata Pill -->
+            <div class="meta-pill-row hidden" id="countryMetaRow">
+              <span class="meta-badge" id="countryRegionBadge">Region</span>
+              <span class="meta-badge" id="countryCodeBadge">ISO</span>
+              <span class="meta-badge count-badge" id="countryStatesCountBadge">0 States</span>
+            </div>
+
+            <p class="error-msg" id="countryError" role="alert"></p>
+          </div>
+
+          <!-- 2. State Selector Field (Dependent) -->
+          <div class="form-group" id="stateGroup">
+            <div class="form-label-row">
+              <label for="stateSelect" class="form-label">
+                <span class="label-icon">🗺️</span>
+                <span class="label-name">State / Province / Region</span>
+                <span class="required-mark" aria-hidden="true">*</span>
+              </label>
+              <span class="badge-hint" id="stateHint">Awaiting Country</span>
+            </div>
+
+            <div class="select-container">
+              <select id="stateSelect" name="state" class="form-select" disabled aria-describedby="stateError">
+                <option value="">-- Select State --</option>
+              </select>
+              <div class="select-chevron" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <p class="error-msg" id="stateError" role="alert"></p>
+          </div>
+
+          <!-- 3. City Selector Field (Dependent) -->
+          <div class="form-group" id="cityGroup">
+            <div class="form-label-row">
+              <label for="citySelect" class="form-label">
+                <span class="label-icon">🏙️</span>
+                <span class="label-name">City / Municipality / Location</span>
+                <span class="required-mark" aria-hidden="true">*</span>
+              </label>
+              <span class="badge-hint" id="cityHint">Awaiting State</span>
+            </div>
+
+            <div class="select-container">
+              <select id="citySelect" name="city" class="form-select" disabled aria-describedby="cityError">
+                <option value="">-- Select City --</option>
+              </select>
+              <div class="select-chevron" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <p class="error-msg" id="cityError" role="alert"></p>
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="form-actions">
+            <button type="submit" id="submitBtn" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Confirm & Save Address
+            </button>
+            
+            <button type="button" id="resetBtn" class="btn btn-secondary">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              Reset Form
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Address Intelligence & Live Inspector Card -->
+      <aside class="card preview-card" aria-labelledby="previewSectionHeading">
+        <div class="card-header-flex">
+          <div>
+            <span class="preview-badge">Live Inspector</span>
+            <h2 id="previewSectionHeading" class="preview-title">Selection Intelligence</h2>
+          </div>
+          <div class="view-switch-group">
+            <button type="button" class="view-tab active" id="tabFormatted" aria-label="Visual view">Visual</button>
+            <button type="button" class="view-tab" id="tabJson" aria-label="JSON view">JSON</button>
+            <button type="button" class="view-tab" id="tabStorage" aria-label="LocalStorage view">LocalStorage</button>
+          </div>
+        </div>
+
+        <!-- Breadcrumb Hierarchy Trail -->
+        <div class="breadcrumb-bar" id="breadcrumbBar">
+          <span class="crumb crumb-root">World</span>
+          <span class="crumb-separator">/</span>
+          <span class="crumb" id="crumbCountry">Select Country</span>
+          <span class="crumb-separator">/</span>
+          <span class="crumb" id="crumbState">Select State</span>
+          <span class="crumb-separator">/</span>
+          <span class="crumb" id="crumbCity">Select City</span>
+        </div>
+
+        <!-- Tab 1: Visual Address Card -->
+        <div class="tab-content" id="contentFormatted">
+          <div class="address-preview-box" id="addressBox">
+            <div class="address-box-header">
+              <span class="box-tag">Standard Address Format</span>
+              <span class="storage-tag" id="storageTag">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                </svg>
+                Cached in LocalStorage
+              </span>
+            </div>
+
+            <div class="address-lines">
+              <div class="address-line-row">
+                <span class="line-icon">🏙️</span>
+                <span class="line-val" id="valCity">No City Selected</span>
+              </div>
+              <div class="address-line-row">
+                <span class="line-icon">🗺️</span>
+                <span class="line-val" id="valState">No State Selected</span>
+              </div>
+              <div class="address-line-row">
+                <span class="line-icon">🌍</span>
+                <span class="line-val" id="valCountry">No Country Selected</span>
+              </div>
+            </div>
+
+            <!-- Action Toolbar for Address -->
+            <div class="preview-toolbar">
+              <button type="button" class="action-btn" id="copyBtn" title="Copy full formatted address to clipboard">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy Text
+              </button>
+              
+              <button type="button" class="action-btn" id="exportBtn" title="Download as JSON file">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export JSON
+              </button>
+
+              <button type="button" class="action-btn" id="bookmarkBtn" title="Save this location to bookmarks">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Bookmark
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Raw JSON Inspector -->
+        <div class="tab-content hidden" id="contentJson">
+          <div class="json-code-wrapper">
+            <pre class="json-pre"><code id="jsonDisplay">{\n  "country": null,\n  "state": null,\n  "city": null\n}</code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 3: LocalStorage Live Inspector & Code Reference -->
+        <div class="tab-content hidden" id="contentStorage">
+          <div class="storage-inspector-box">
+            <div class="storage-box-header">
+              <span class="box-tag">Live LocalStorage State</span>
+              <button type="button" class="storage-clear-btn" id="storageClearBtn" title="Clear address keys from LocalStorage">
+                🗑️ Clear Storage
+              </button>
+            </div>
+
+            <!-- Live LocalStorage Key-Value Table -->
+            <div class="storage-table-wrapper">
+              <table class="storage-table">
+                <thead>
+                  <tr>
+                    <th>Storage Key</th>
+                    <th>Current Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>address_selected_country</code></td>
+                    <td id="storageValCountry"><span class="empty-tag">null</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>address_selected_state</code></td>
+                    <td id="storageValState"><span class="empty-tag">null</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>address_selected_city</code></td>
+                    <td id="storageValCity"><span class="empty-tag">null</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- LocalStorage Code Reference Box -->
+            <div class="storage-code-box">
+              <div class="storage-code-header">
+                <span class="box-tag">LocalStorage Code Snippet</span>
+                <button type="button" class="copy-code-btn" id="copyStorageCodeBtn" title="Copy LocalStorage Code">
+                  📋 Copy Code
+                </button>
+              </div>
+              <pre class="json-pre"><code id="storageCodeDisplay">// === 1. Save to LocalStorage ===
+localStorage.setItem("address_selected_country", country);
+localStorage.setItem("address_selected_state", state);
+localStorage.setItem("address_selected_city", city);
+
+// === 2. Restore on Page Load ===
+const savedCountry = localStorage.getItem("address_selected_country");
+const savedState   = localStorage.getItem("address_selected_state");
+const savedCity    = localStorage.getItem("address_selected_city");
+
+// === 3. Reset when Parent Changes ===
+localStorage.removeItem("address_selected_state");
+localStorage.removeItem("address_selected_city");</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success Submission Card -->
+        <div class="submission-banner hidden" id="submissionBanner">
+          <div class="banner-icon-col">
+            <div class="check-circle-pulse">✓</div>
+          </div>
+          <div class="banner-text-col">
+            <h4 class="banner-title">Address Successfully Verified & Saved</h4>
+            <p class="banner-desc" id="bannerAddressText"></p>
+          </div>
+        </div>
+
+        <!-- Saved Bookmarks Accordion Section -->
+        <div class="bookmarks-section">
+          <div class="bookmarks-header" id="bookmarksToggle">
+            <div class="bookmarks-title">
+              <span class="bookmark-icon">📌</span>
+              <span>Saved Address History (<span id="bookmarkCount">0</span>)</span>
+            </div>
+            <span class="bookmarks-arrow">▾</span>
+          </div>
+
+          <div class="bookmarks-body" id="bookmarksBody">
+            <ul class="bookmarks-list" id="bookmarksList">
+              <li class="empty-bookmark-msg">No saved bookmarks yet. Submit or bookmark an address to save it here.</li>
+            </ul>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Application Scripts -->
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
