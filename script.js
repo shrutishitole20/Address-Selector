@@ -288,79 +288,41 @@ function syncUI() {
   crumbState.textContent = state || "Select State";
   crumbCity.textContent = city || "Select City";
 
-  // 2. Visual Address Preview
-  if (country) {
-    valCountry.textContent = `${flag}${country}`;
-    valCountry.classList.remove("empty");
-  } else {
-    valCountry.textContent = "No Country Selected";
-    valCountry.classList.add("empty");
-  }
-
-  if (state) {
-    valState.textContent = state;
-    valState.classList.remove("empty");
-  } else {
-    valState.textContent = "No State Selected";
-    valState.classList.add("empty");
-  }
-
-  if (city) {
-    valCity.textContent = city;
-    valCity.classList.remove("empty");
-  } else {
-    valCity.textContent = "No City Selected";
-    valCity.classList.add("empty");
-  }
+  // 2. Visual Address Preview (Ternary + classList.toggle)
+  const previewItems = [
+    { element: valCountry, text: country ? `${flag}${country}` : "No Country Selected", hasValue: Boolean(country) },
+    { element: valState,   text: state || "No State Selected",                          hasValue: Boolean(state) },
+    { element: valCity,    text: city || "No City Selected",                            hasValue: Boolean(city) }
+  ];
+  previewItems.forEach(({ element, text, hasValue }) => {
+    element.textContent = text;
+    element.classList.toggle("empty", !hasValue);
+  });
 
   // 3. Country Metadata Pill Row
-  if (country && countryMeta[country]) {
-    const meta = countryMeta[country];
+  const meta = country ? countryMeta[country] : null;
+  countryMetaRow.classList.toggle("hidden", !meta);
+  if (meta) {
     countryRegionBadge.textContent = meta.continent || "Global";
     countryCodeBadge.textContent = `ISO: ${meta.code || "N/A"}`;
     const totalStates = Object.keys(locationData[country] || {}).length;
     countryStatesCountBadge.textContent = `${totalStates} States / Regions`;
-    countryMetaRow.classList.remove("hidden");
-  } else {
-    countryMetaRow.classList.add("hidden");
   }
 
-  // 4. Stepper Progress Nodes
+  // 4. Stepper Progress Nodes (Boolean classList.toggle state matrix)
   // Step 1: Country
-  if (country) {
-    stepCountry.classList.add("completed");
-    stepCountry.classList.remove("active");
-    stepLine1.classList.add("active");
-  } else {
-    stepCountry.classList.remove("completed");
-    stepCountry.classList.add("active");
-    stepLine1.classList.remove("active");
-  }
+  stepCountry.classList.toggle("completed", Boolean(country));
+  stepCountry.classList.toggle("active", !country);
+  stepLine1.classList.toggle("active", Boolean(country));
 
   // Step 2: State
-  if (state) {
-    stepState.classList.add("completed");
-    stepState.classList.remove("active");
-    stepLine2.classList.add("active");
-  } else if (country) {
-    stepState.classList.add("active");
-    stepState.classList.remove("completed");
-    stepLine2.classList.remove("active");
-  } else {
-    stepState.classList.remove("active", "completed");
-    stepLine2.classList.remove("active");
-  }
+  stepState.classList.toggle("completed", Boolean(state));
+  stepState.classList.toggle("active", Boolean(country && !state));
+  stepLine2.classList.toggle("active", Boolean(state));
 
   // Step 3: City
-  if (city) {
-    stepCity.classList.add("completed");
-    stepCity.classList.remove("active");
-  } else if (state) {
-    stepCity.classList.add("active");
-    stepCity.classList.remove("completed");
-  } else {
-    stepCity.classList.remove("active", "completed");
-  }
+  stepCity.classList.toggle("completed", Boolean(city));
+  stepCity.classList.toggle("active", Boolean(state && !city));
 
   // 5. Live Developer JSON Inspector
   const jsonPayload = {
@@ -403,32 +365,23 @@ function setError(group, errorElement, message) {
 }
 
 /**
- * Validates that all three dropdown fields have valid selections.
+ * Validates that all three dropdown fields have valid selections using
+ * a clean schema-driven array approach instead of repetitive if-else blocks.
  * @returns {boolean} True if all valid
  */
 function validateForm() {
+  const fields = [
+    { value: countrySelect.value, group: countryGroup, error: countryError, msg: "Please select a country from the dropdown." },
+    { value: stateSelect.value,   group: stateGroup,   error: stateError,   msg: "Please select a state or province." },
+    { value: citySelect.value,    group: cityGroup,    error: cityError,    msg: "Please select a city or location." }
+  ];
+
   let isValid = true;
-
-  if (!countrySelect.value) {
-    setError(countryGroup, countryError, "Please select a country from the dropdown.");
-    isValid = false;
-  } else {
-    clearError(countryGroup, countryError);
-  }
-
-  if (!stateSelect.value) {
-    setError(stateGroup, stateError, "Please select a state or province.");
-    isValid = false;
-  } else {
-    clearError(stateGroup, stateError);
-  }
-
-  if (!citySelect.value) {
-    setError(cityGroup, cityError, "Please select a city or location.");
-    isValid = false;
-  } else {
-    clearError(cityGroup, cityError);
-  }
+  fields.forEach(({ value, group, error, msg }) => {
+    const hasValue = Boolean(value);
+    hasValue ? clearError(group, error) : setError(group, error, msg);
+    if (!hasValue) isValid = false;
+  });
 
   return isValid;
 }
@@ -444,11 +397,7 @@ function validateForm() {
 const StorageManager = {
   // Save an address key to LocalStorage
   save(key, value) {
-    if (value) {
-      localStorage.setItem(key, value);
-    } else {
-      localStorage.removeItem(key);
-    }
+    value ? localStorage.setItem(key, value) : localStorage.removeItem(key);
   },
 
   // Read a key from LocalStorage
@@ -705,34 +654,29 @@ countryFilterInput.addEventListener("input", (e) => {
 countrySelect.addEventListener("change", (e) => {
   const selectedCountry = e.target.value;
 
-  clearError(countryGroup, countryError);
-  clearError(stateGroup, stateError);
-  clearError(cityGroup, cityError);
+  [countryGroup, stateGroup, cityGroup].forEach(g => clearError(g, g.querySelector(".field-error")));
   submissionBanner.classList.add("hidden");
 
-  if (selectedCountry) {
-    StorageManager.save(STORAGE_KEYS.COUNTRY, selectedCountry);
-    StorageManager.remove(STORAGE_KEYS.STATE);
-    StorageManager.remove(STORAGE_KEYS.CITY);
+  // Always reset and disable City when Country changes
+  citySelect.innerHTML = '<option value="">-- Select City --</option>';
+  citySelect.disabled = true;
+  cityHint.textContent = "Awaiting State";
 
-    populateStates(selectedCountry);
-
-    // Reset and disable City
-    citySelect.innerHTML = '<option value="">-- Select City --</option>';
-    citySelect.disabled = true;
-    cityHint.textContent = "Awaiting State";
-  } else {
+  // Guard clause: user cleared country selection
+  if (!selectedCountry) {
     StorageManager.clearAddress();
-
     stateSelect.innerHTML = '<option value="">-- Select State --</option>';
     stateSelect.disabled = true;
     stateHint.textContent = "Awaiting Country";
-
-    citySelect.innerHTML = '<option value="">-- Select City --</option>';
-    citySelect.disabled = true;
-    cityHint.textContent = "Awaiting State";
+    syncUI();
+    return;
   }
 
+  // Country selected: persist and populate states
+  StorageManager.save(STORAGE_KEYS.COUNTRY, selectedCountry);
+  StorageManager.remove(STORAGE_KEYS.STATE);
+  StorageManager.remove(STORAGE_KEYS.CITY);
+  populateStates(selectedCountry);
   syncUI();
 });
 
@@ -741,24 +685,23 @@ stateSelect.addEventListener("change", (e) => {
   const selectedCountry = countrySelect.value;
   const selectedState = e.target.value;
 
-  clearError(stateGroup, stateError);
-  clearError(cityGroup, cityError);
+  [stateGroup, cityGroup].forEach(g => clearError(g, g.querySelector(".field-error")));
   submissionBanner.classList.add("hidden");
+  StorageManager.remove(STORAGE_KEYS.CITY);
 
-  if (selectedState) {
-    StorageManager.save(STORAGE_KEYS.STATE, selectedState);
-    StorageManager.remove(STORAGE_KEYS.CITY);
-
-    populateCities(selectedCountry, selectedState);
-  } else {
+  // Guard clause: user cleared state selection
+  if (!selectedState) {
     StorageManager.remove(STORAGE_KEYS.STATE);
-    StorageManager.remove(STORAGE_KEYS.CITY);
-
     citySelect.innerHTML = '<option value="">-- Select City --</option>';
     citySelect.disabled = true;
     cityHint.textContent = "Awaiting State";
+    syncUI();
+    return;
   }
 
+  // State selected: persist and populate cities
+  StorageManager.save(STORAGE_KEYS.STATE, selectedState);
+  populateCities(selectedCountry, selectedState);
   syncUI();
 });
 
@@ -769,11 +712,9 @@ citySelect.addEventListener("change", (e) => {
   clearError(cityGroup, cityError);
   submissionBanner.classList.add("hidden");
 
-  if (selectedCity) {
-    StorageManager.save(STORAGE_KEYS.CITY, selectedCity);
-  } else {
-    StorageManager.remove(STORAGE_KEYS.CITY);
-  }
+  selectedCity
+    ? StorageManager.save(STORAGE_KEYS.CITY, selectedCity)
+    : StorageManager.remove(STORAGE_KEYS.CITY);
 
   syncUI();
 });
@@ -782,28 +723,29 @@ citySelect.addEventListener("change", (e) => {
 addressForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  if (validateForm()) {
-    const confirmed = {
-      country: countrySelect.value,
-      state: stateSelect.value,
-      city: citySelect.value
-    };
-
-    console.log("Confirmed Address Payload:", confirmed);
-
-    // Show Confirmation Banner
-    const flag = countryMeta[confirmed.country]?.flag || "📍";
-    bannerAddressText.innerHTML = `Confirmed: <strong>${confirmed.city}</strong>, <strong>${confirmed.state}</strong>, <strong>${flag} ${confirmed.country}</strong>.`;
-    submissionBanner.classList.remove("hidden");
-
-    // Automatically bookmark this confirmed address
-    addCurrentToBookmarks();
-
-    showToast("Address validated, confirmed, and cached!", "success", "🎉");
-  } else {
+  // Guard clause: abort early if invalid
+  if (!validateForm()) {
     submissionBanner.classList.add("hidden");
     showToast("Please complete all required fields.", "warning", "⚠️");
+    return;
   }
+
+  const confirmed = {
+    country: countrySelect.value,
+    state: stateSelect.value,
+    city: citySelect.value
+  };
+
+  console.log("Confirmed Address Payload:", confirmed);
+
+  // Show Confirmation Banner
+  const flag = countryMeta[confirmed.country]?.flag || "📍";
+  bannerAddressText.innerHTML = `Confirmed: <strong>${confirmed.city}</strong>, <strong>${confirmed.state}</strong>, <strong>${flag} ${confirmed.country}</strong>.`;
+  submissionBanner.classList.remove("hidden");
+
+  // Automatically bookmark this confirmed address
+  addCurrentToBookmarks();
+  showToast("Address validated, confirmed, and cached!", "success", "🎉");
 });
 
 // Form Reset
